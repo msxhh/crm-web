@@ -2,7 +2,7 @@ import http from '@/api'
 import { COMMON_ADMIN_API } from '@/api/axios/servicePort'
 
 /**
- * @name 部门管理
+ * @name 閮ㄩ棬绠＄悊
  */
 export const DepartmentApi = {
   page: (params: any) => http.post(COMMON_ADMIN_API + '/department/page', params),
