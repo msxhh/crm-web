@@ -11,15 +11,17 @@
       :searchCol="{ xs: 2, sm: 3, md: 4, lg: 6, xl: 8 }"
     >
       <!-- 修改后：临时移除权限控制 -->
-      <template #tableHeader>
-        <el-button type="primary" :icon="CirclePlus" @click="openDrawer('新增')">新增客户</el-button>
+      <template #tableHeader="scope">
+        <el-button type="primary" :icon="CirclePlus" v-hasPermi="['sys:customer:add']" @click="openDrawer('新增')">新增客户</el-button>
+        <el-button type="danger" :icon="Delete" :disabled="!scope.isSelected" @click="batchDelete(scope.selectedListIds)">批量删除</el-button>
         <el-button type="primary" :icon="Download" @click="downloadFile">导出</el-button>
       </template>
 
       <!-- 表格操作 -->
       <template #operation="scope">
-        <el-button type="primary" link :icon="EditPen" @click="openDrawer('编辑', scope.row)">编辑</el-button>
-        <el-button type="danger" link :icon="Delete" @click="deleteCustomer(scope.row)">删除</el-button>
+        <el-button type="primary" link :icon="EditPen" v-hasPermi="['sys:customer:edit']" @click="openDrawer('编辑', scope.row)">编辑</el-button>
+        <el-button type="danger" link :icon="Delete" v-hasPermi="['sys:customer:remove']" @click="batchDelete([scope.row.id])">删除</el-button>
+        <el-button type="warning" link :icon="Share" @click="customerToPublic(scope.row.id)">转⼊公海</el-button>
       </template>
     </ProTable>
     <CustomerDialog ref="dialogRef" />
@@ -32,7 +34,7 @@ import ProTable from '@/components/ProTable/index.vue'
 import { CustomerApi } from '@/api/modules/customer'
 import { CustomerLevelList, CustomerSourceList, FollowUpStatusList, GenderList, IsKeyDecisionMakerList } from '@/configs/enum'
 // import { Download } from '@element-plus/icons-vue/dist/types'
-import { CirclePlus, Download, EditPen, Delete } from '@element-plus/icons-vue'
+import { CirclePlus, Download, EditPen, Delete, Share } from '@element-plus/icons-vue'
 import { ElMessageBox } from 'element-plus'
 import { useDownload } from '@/hooks/useDownload'
 import { useHandleData } from '@/hooks/useHandleData'
@@ -163,9 +165,18 @@ const openDrawer = (title: string, row: Partial<any> = {}) => {
   }
   dialogRef.value.acceptParams(params)
 }
-// 删除客户
-const deleteCustomer = async (params: any) => {
-  await useHandleData(CustomerApi.remove, { id: params.id }, `删除【${params.name}】`)
+
+// 删除选中客户
+const batchDelete = async (ids: any[]) => {
+  await useHandleData(CustomerApi.remove, ids, '删除所选客户')
+  proTable.value.clearSelection()
+  proTable.value.getTableList()
+}
+
+// 转入公海
+const customerToPublic = async (id: any) => {
+  await useHandleData(CustomerApi.toPublic, { id: id }, '转⼊公海')
+  proTable.value.clearSelection()
   proTable.value.getTableList()
 }
 </script>

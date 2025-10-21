@@ -12,7 +12,7 @@
     >
       <!-- 修改后：临时移除权限控制 -->
       <template #tableHeader>
-        <el-button type="primary" :icon="CirclePlus" @click="openDrawer('新增')">新增部门</el-button>
+        <el-button type="primary" :icon="CirclePlus" v-hasPermi="['sys:department:add']" @click="openDrawer('新增')">新增部门</el-button>
       </template>
 
       <!-- 表格操作 -->
