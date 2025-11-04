@@ -3,25 +3,23 @@
     <ProTable
       ref="proTable"
       title="客户列表"
-      rowKey="id"
       :columns="columns"
       :requestApi="CustomerApi.page"
       :initParam="initParam"
       :dataCallback="dataCallback"
       :searchCol="{ xs: 2, sm: 3, md: 4, lg: 6, xl: 8 }"
     >
-      <!-- 修改后：临时移除权限控制 -->
-      <template #tableHeader="scope">
+      <!-- 表格 header 按钮 -->
+      <template #tableHeader="scope" v-if="props.isShowHeader">
         <el-button type="primary" :icon="CirclePlus" v-hasPermi="['sys:customer:add']" @click="openDrawer('新增')">新增客户</el-button>
-        <el-button type="danger" :icon="Delete" :disabled="!scope.isSelected" @click="batchDelete(scope.selectedListIds)">批量删除</el-button>
-        <el-button type="primary" :icon="Download" @click="downloadFile">导出</el-button>
+        <el-button type="danger" :icon="Delete" :disabled="!scope.isSelected" v-hasPermi="['...']" @click="batchDelete(scope.selectedListIds)">批量删除</el-button>
+        <el-button type="primary" :icon="Download" plain @click="downloadFile" v-hasPermi="['sys:customer:export']">导出客户</el-button>
       </template>
-
       <!-- 表格操作 -->
       <template #operation="scope">
         <el-button type="primary" link :icon="EditPen" v-hasPermi="['sys:customer:edit']" @click="openDrawer('编辑', scope.row)">编辑</el-button>
         <el-button type="danger" link :icon="Delete" v-hasPermi="['sys:customer:remove']" @click="batchDelete([scope.row.id])">删除</el-button>
-        <el-button type="warning" link :icon="Share" @click="customerToPublic(scope.row.id)">转⼊公海</el-button>
+        <el-button type="warning" link :icon="Share" v-hasPermi="['sys:customer:share']" @click="customerToPublic(scope.row.id)"> 转入公海</el-button>
       </template>
     </ProTable>
     <CustomerDialog ref="dialogRef" />
@@ -32,22 +30,33 @@ import { ref, reactive } from 'vue'
 import { ColumnProps } from '@/components/ProTable/interface'
 import ProTable from '@/components/ProTable/index.vue'
 import { CustomerApi } from '@/api/modules/customer'
-import { CustomerLevelList, CustomerSourceList, FollowUpStatusList, GenderList, IsKeyDecisionMakerList } from '@/configs/enum'
-// import { Download } from '@element-plus/icons-vue/dist/types'
-import { CirclePlus, Download, EditPen, Delete, Share } from '@element-plus/icons-vue'
-import { ElMessageBox } from 'element-plus'
-import { useDownload } from '@/hooks/useDownload'
+import { CirclePlus, EditPen, Delete, Download, Share } from '@element-plus/icons-vue'
 import { useHandleData } from '@/hooks/useHandleData'
+import { CustomerLevelList, CustomerSourceList, FollowUpStatusList, GenderList, IsKeyDecisionMakerList } from '@/configs/enum'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { useDownload } from '@/hooks/useDownload'
 import CustomerDialog from './components/CustomerDialog.vue'
 
-// 获取 ProTable 元素，调用其获取刷新数据方法（还能获取到当前查询参数，方便导出携带参数）
+// 获取 ProTable 元素
 const proTable = ref()
+const props = defineProps({
+  isShowHeader: {
+    type: Boolean,
+    default: true
+  }
+})
 
-// 如果表格需要初始化请求参数，直接定义传给 ProTable(之后每次请求都会自动带上该参数，此参数更改之后也会一直带上，改变此参数会自动刷新表格数据)
+defineExpose({
+  proTable
+})
+// 初始化请求参数
+
 const initParam = reactive({ isPublic: 0 })
+const dataSize = ref(0)
 
-// dataCallback 是对于返回的表格数据做处理，如果你后台返回的数据不是 datalist && total 这些字段，那么你可以在这里进行处理成这些字段
+// 数据处理回调
 const dataCallback = (data: any) => {
+  dataSize.value = data.list.size
   return {
     list: data.list,
     total: data.total
@@ -82,34 +91,27 @@ const columns: ColumnProps[] = [
   },
   {
     prop: 'isKeyDecisionMaker',
-    label: '是否是关键决策人',
+    label: '是否关键决策人',
     enum: Object.values(IsKeyDecisionMakerList),
-    minWidth: 100
-    // search: { el: 'select' }
+    minWidth: 100,
+    search: { el: 'select' }
   },
   {
     prop: 'dealCount',
     label: '成交次数',
     minWidth: 120
   },
-  //   {
-  //     prop: 'dealCount',
-  //     label: '成交次数',
-  //     minWidth: 120
-  //   },
   {
     prop: 'level',
     label: '客户级别',
     enum: Object.values(CustomerLevelList),
-    minWidth: 120,
-    search: { el: 'select' }
+    minWidth: 120
   },
   {
     prop: 'source',
     label: '客户来源',
     minWidth: 120,
-    enum: Object.values(CustomerSourceList),
-    search: { el: 'select' }
+    enum: Object.values(CustomerSourceList)
   },
   {
     prop: 'address',
@@ -128,7 +130,7 @@ const columns: ColumnProps[] = [
     minWidth: 120
   },
   {
-    prop: 'createName',
+    prop: 'createrName',
     label: '创建人',
     minWidth: 120
   },
@@ -142,26 +144,19 @@ const columns: ColumnProps[] = [
     label: '创建时间',
     width: 200
   },
-  { prop: 'operation', label: '操作', fixed: 'right', width: 330 }
+  { prop: 'operation', label: '操作', fixed: 'right', width: 330, isShow: props.isShowHeader }
 ]
 
-const downloadFile = async () => {
-  if (initParam) {
-    proTable.value.searchParam.isPublic = initParam.isPublic
-  }
-  ElMessageBox.confirm('确认导出用户信息吗', '温馨提醒', { type: 'warning' }).then(() => useDownload(CustomerApi.export, '客户信息', proTable?.value.searchParam))
-}
-
+// 打开抽屉
 const dialogRef = ref()
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const openDrawer = (title: string, row: Partial<any> = {}) => {
-  let params = {
+let openDrawer = (title: string, row: Partial<any> = {}) => {
+  const params = {
     title,
     row: { ...row },
     isView: title === '查看',
     api: CustomerApi.saveOrEdit,
-    getTableList: proTable.value.getTableList,
-    maxHeight: '300px'
+    getTableList: proTable.value?.getTableList(),
+    maxHeight: '500px'
   }
   dialogRef.value.acceptParams(params)
 }
@@ -172,10 +167,23 @@ const batchDelete = async (ids: any[]) => {
   proTable.value.clearSelection()
   proTable.value.getTableList()
 }
-
+// 导出列表
+const downloadFile = async () => {
+  if (dataSize.value === 0) {
+    ElMessage({
+      type: 'warning',
+      message: '暂无客户数据需要导出'
+    })
+  } else {
+    if (initParam) {
+      proTable.value.searchParam.isPublic = initParam.isPublic
+    }
+    ElMessageBox.confirm('确认导出客户记录吗？', '温馨提示', { type: 'warning' }).then(() => useDownload(CustomerApi.export, '客户列表', proTable.value?.searchParam))
+  }
+}
 // 转入公海
 const customerToPublic = async (id: any) => {
-  await useHandleData(CustomerApi.toPublic, { id: id }, '转⼊公海')
+  await useHandleData(CustomerApi.toPublic, { id: id }, '转入公海')
   proTable.value.clearSelection()
   proTable.value.getTableList()
 }
