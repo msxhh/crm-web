@@ -44,6 +44,35 @@ export enum IsKeyDecisionMaker {
   NO
 }
 
+/**
+ * 商品状态枚举（对应实体的 Byte 类型 status）
+ */
+export enum ProductStatus {
+  INITIALIZING,
+  ONLINE,
+  OFFLINE
+}
+
+export enum ContractStatus {
+  INITIALIZING,
+  UNDER_REVIEW,
+  APPROVED,
+  REJECTED
+}
+
+export enum LeadStatus {
+  NOT_CONVERTED, // 未转换
+  CONVERTED, // 已转换
+  INVALID // 无效
+}
+
+export enum FollowUpMethod {
+  PHONE_CALL,
+  VISIT,
+  WECHAT,
+  SMS
+}
+
 export const CustomerLevelList: { [key in CustomerLevel]: EnumInfo } = {
   [CustomerLevel.ORDINARY_CUSTOMER]: { value: 0, label: '普通客户' },
   [CustomerLevel.PREMIUM_CUSTOMER]: { value: 1, label: '优质客户' },
@@ -85,26 +114,10 @@ export const IsKeyDecisionMakerList: { [key in IsKeyDecisionMaker]: EnumInfo } =
   [IsKeyDecisionMaker.NO]: { value: 1, label: '否' }
 }
 
-/**
- * 商品状态枚举（对应实体的 Byte 类型 status）
- */
-export enum ProductStatus {
-  INITIALIZING,
-  ONLINE,
-  OFFLINE
-}
-
 export const ProductStatusList: { [key in ProductStatus]: EnumInfo } = {
   [ProductStatus.INITIALIZING]: { value: 0, label: '初始化' },
   [ProductStatus.ONLINE]: { value: 1, label: '上架' },
   [ProductStatus.OFFLINE]: { value: 2, label: '下架' }
-}
-
-export enum ContractStatus {
-  INITIALIZING,
-  UNDER_REVIEW,
-  APPROVED,
-  REJECTED
 }
 
 /**
@@ -115,4 +128,17 @@ export const ContractStatusList: { [key in ContractStatus]: EnumInfo } = {
   [ContractStatus.UNDER_REVIEW]: { value: 1, label: '审核中' },
   [ContractStatus.APPROVED]: { value: 2, label: '审核通过' },
   [ContractStatus.REJECTED]: { value: 3, label: '审核未通过' }
+}
+
+export const LeadStatusList: { [key in LeadStatus]: EnumInfo } = {
+  [LeadStatus.NOT_CONVERTED]: { value: 0, label: '未转换' },
+  [LeadStatus.CONVERTED]: { value: 1, label: '已转换' },
+  [LeadStatus.INVALID]: { value: 2, label: '无效' }
+}
+
+export const FollowUpMethodList: { [key in FollowUpMethod]: EnumInfo } = {
+  [FollowUpMethod.PHONE_CALL]: { value: 0, label: '电话' },
+  [FollowUpMethod.VISIT]: { value: 1, label: '上门' },
+  [FollowUpMethod.WECHAT]: { value: 2, label: '微信' },
+  [FollowUpMethod.SMS]: { value: 3, label: '短信' }
 }
