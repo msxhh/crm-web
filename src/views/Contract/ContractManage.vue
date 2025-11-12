@@ -38,15 +38,8 @@ import { ElMessage } from 'element-plus'
 import { ContractStatusList } from '@/configs/enum'
 
 const proTable = ref()
-const initParam = reactive({})
-// 处理接口返回数据格式
-const dataCallback = (data: any) => {
-  return {
-    list: data.list,
-    total: data.total
-  }
-}
 const dialogRef = ref()
+
 const props = defineProps({
   isShowHeader: {
     type: Boolean,
@@ -58,7 +51,17 @@ defineExpose({
   proTable
 })
 
-// 表格列配置（已修正类型错误）
+const initParam = reactive({})
+
+// 处理接口返回数据格式
+const dataCallback = (data: any) => {
+  return {
+    list: data.list,
+    total: data.total
+  }
+}
+
+// 表格列配置
 const columns: ColumnProps[] = [
   { type: 'selection', fixed: 'left', width: 60 },
   {
@@ -113,7 +116,13 @@ const columns: ColumnProps[] = [
     label: '合同结束时间',
     minWidth: 140
   },
-  { prop: 'operation', label: '操作', fixed: 'right', width: 330, isShow: props.isShowHeader }
+  {
+    prop: 'operation',
+    label: '操作',
+    fixed: 'right',
+    width: 330,
+    isShow: props.isShowHeader
+  }
 ]
 
 // 打开抽屉
@@ -132,14 +141,13 @@ const openDrawer = (title: string, row: Partial<any> = {}) => {
 /**
  * 打印合同
  */
-// 新增：合同打印方法（适配目标样式）
 const handleContractPrint = async (contractRow: any) => {
   try {
-    // 1. 获取合同完整数据（若列表行已有完整数据可省略此步）
+    // 获取合同完整数据
     const res = await ContractApi.export({ id: contractRow.id })
     const contract = res.data || contractRow
 
-    // 2. 构建与示例一致的HTML结构
+    // 构建打印HTML结构
     const printHtml = `
       <div style="max-width: 800px; margin: 0 auto; font-family: 'Microsoft YaHei', sans-serif;">
         <!-- 合同标题 -->
@@ -223,7 +231,7 @@ const handleContractPrint = async (contractRow: any) => {
       </div>
     `
 
-    // 3. 调用print-js打印
+    // 调用print-js打印
     printJS({
       printable: printHtml,
       type: 'raw-html',

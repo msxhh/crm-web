@@ -142,3 +142,19 @@ export const FollowUpMethodList: { [key in FollowUpMethod]: EnumInfo } = {
   [FollowUpMethod.WECHAT]: { value: 2, label: '微信' },
   [FollowUpMethod.SMS]: { value: 3, label: '短信' }
 }
+
+// 业务类型枚举（与后端保持一致）
+export const BusinessTypeList = [
+  { label: '查询', value: 1 },
+  { label: '新增或修改', value: 2 },
+  { label: '删除', value: 3 },
+  { label: '导出', value: 5 },
+  { label: '导入', value: 6 },
+  { label: '其它', value: 0 }
+]
+
+// 操作状态枚举
+export const BusinessStatusList = [
+  { label: '成功', value: 0 },
+  { label: '失败', value: 1 }
+]
