@@ -1,3 +1,4 @@
+// src/api/modules/dashboard/index.ts
 import http from '@/api'
 import { COMMON_ADMIN_API } from '@/api/axios/servicePort'
 

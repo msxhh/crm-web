@@ -44,6 +44,7 @@ export function getFormattedDateRange(startDateStr: Date): string[] {
   const endDate = new Date(startDate)
   endDate.setDate(startDate.getDate() + 6)
   endDate.setHours(23, 59, 59, 999)
+
   const formatDateTime = (date) => {
     const year = date.getFullYear()
     const month = String(date.getMonth() + 1).padStart(2, '0')
