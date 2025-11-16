@@ -25,7 +25,8 @@
 
 <script setup lang="ts">
 import { CaretTop, CaretBottom } from '@element-plus/icons-vue'
-import { User, Search, Document, Money } from '@element-plus/icons-vue'
+// 导入所有需要的图标，包括新增的审核相关图标
+import { User, Search, Document, Money, Check, Close } from '@element-plus/icons-vue'
 
 const _props = defineProps({
   title: {
@@ -54,16 +55,19 @@ const _props = defineProps({
   }
 })
 
-// 注册图标组件
+// 注册所有图标组件，包括新增的Check和Close
 const _components = {
   User,
   Search,
   Document,
-  Money
+  Money,
+  Check,
+  Close
 }
 </script>
 
 <style scoped>
+/* 样式保持不变 */
 .card-content {
   padding: 16px;
 }

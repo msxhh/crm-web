@@ -12,5 +12,9 @@ export const ContractApi = {
   export: (params: any) => http.post(COMMON_ADMIN_API + '/contract/export', params, { responseType: 'blob' }),
 
   // 合同统计数据接口
-  getContractStatusPieData: () => http.post(COMMON_ADMIN_API + '/contract/statusPieData')
+  getContractStatusPieData: () => http.post(COMMON_ADMIN_API + '/contract/statusPieData'),
+
+  // 审批
+  startApproval: (params: any) => http.post(COMMON_ADMIN_API + '/contract/startApproval', params),
+  approvalContract: (params: any) => http.post(COMMON_ADMIN_API + '/contract/approvalContract', params)
 }
